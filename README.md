@@ -8,3 +8,4 @@ Steps to Run for Mac OSX
 3. Add rootCA.pem to the Certificates in KeyChain Access (Directly or using Chrome Settings).
 4. mongod &
 5. node server.js
+6. https://localhost:3000
