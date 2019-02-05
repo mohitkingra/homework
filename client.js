@@ -9,12 +9,14 @@ let client = {
 
 		ws = new WebSocket('wss://localhost:3000');
 
+		let handle = this;
+
   		ws.onopen = function() {
   			console.log("connected");
 
-  			if(this.isSubscribed){
+  			if(handle.isSubscribed){
 				console.log("resubscribing...");
-				this.subscribe();
+				handle.subscribe();
 			}
   		};
 
@@ -79,12 +81,12 @@ let client = {
 	
 	subscribe : function() {
 		ws.send("subscribe");
-		isSubscribed = true;
+		this.isSubscribed = true;
 	},
 
 	unsubscribe : function() {
 		ws.send("unsubscribe");
-		isSubscribed = false;
+		this.isSubscribed = false;
 
 
 		let divId = document.getElementById("data");		
