@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ 	<script defer src="./client.js" charset="utf-8"></script>   
+ </head>
+ <body>
+	<button onclick="client.connect()">Connect</button>
+    <button onclick="client.disconnect()">Disconnect</button>
+    <button onclick="client.reconnect()">Reconnect</button>
+		<form onsubmit="client.publish(); return false">
+                Topic:  <input id="topic" type="text"><br>
+                Value:  <input id="value" type="text"><br>
+                <input type="submit" value="Publish">
+        </form>
+    <button onclick="client.subscribe()">Subscribe</button>
+    <button onclick="client.unsubscribe()">UnSubscribe</button>
+	<div id="data" />
+ </body>
+</html>
