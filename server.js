@@ -4,9 +4,19 @@ const WebSocket = require('ws');
 const fs = require('fs');
 
 const MongoClient = require('mongodb').MongoClient; 
-const url = "mongodb://localhost:27017/assignment"; //Mongodb Database Handle
+const url = "mongodb://localhost:27017/assignment"; //Mongodb Database Url
 
-let subscribers = [];
+let db = null;
+let collection = null;
+
+MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
+  if(err) throw err;
+
+  db = client.db('assignment');
+  collection = db.collection('payload');
+});
+
+let subscribers = []; //Subscriber's WS Client Object Array 
 
 const server = https.createServer({
   key: fs.readFileSync('server.key'),
@@ -49,12 +59,7 @@ const server = https.createServer({
       });
 
       req.on('end', () => {
-        MongoClient.connect(url, function(err, client) {
-          if(err) throw err;
-
-          let db = client.db('assignment');
-          let collection = db.collection('payload');
-
+        
           let jsonObject =  JSON.parse(data);
 
           collection.findOneAndUpdate({topic: jsonObject.topic}, {$set: {value: jsonObject.value}}, //Publish JSON Payload
@@ -62,7 +67,7 @@ const server = https.createServer({
             if(err) throw err;
 
             console.log("published");
-            db.collection('payload').find().toArray(function(e, d) {
+            collection.find().toArray(function(e, d) {
               subscribers.forEach(function each(client) {
                 if (client.readyState === WebSocket.OPEN) {
                   client.send(JSON.stringify(d)); //Notify Subscribers of Update
@@ -71,7 +76,6 @@ const server = https.createServer({
             });
           });
         });
-      });
     }
 });
 
@@ -94,14 +98,9 @@ wss.on('connection', function connection(ws, req) { //WSS Endpoint
       
       subscribers.push(ws);
 
-      MongoClient.connect(url, function(err, client) {
-        if(err) throw err;
-
-        let db = client.db('assignment');
-        db.collection('payload').find().toArray(function(e, d) {  
+      collection.find().toArray(function(e, d) {  
           ws.send(JSON.stringify(d)); //Notify on New Subscriber or on ReSubscibe/Reconnect
-        });                      
-      });
+        });            
     }
     else if(data === "unsubscribe") {
         subscribers.pop(ws);

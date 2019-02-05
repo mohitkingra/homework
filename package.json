@@ -16,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/mohitkingra/homework/issues"
   },
-  "homepage": "https://github.com/mohitkingra/homework#readme"
+  "homepage": "https://github.com/mohitkingra/homework#readme",
+  "dependencies": {
+    "mongodb": "^3.1.13",
+    "node": "^11.9.0",
+    "ws": "^6.1.3"
+  }
 }
