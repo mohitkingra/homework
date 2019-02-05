@@ -1,97 +1,93 @@
 let client = {
-	
-	ws : null, 
-	
-	isSubscribed : false,
+  ws: null,
 
-	connect : function() {
-		console.log("connecting...");
+  isSubscribed: false,
 
-		ws = new WebSocket('wss://localhost:3000');
+  connect: function() {
+    console.log("connecting...");
 
-		let handle = this;
+    ws = new WebSocket("wss://localhost:3000");
 
-  		ws.onopen = function() {
-  			console.log("connected");
+    let handle = this;
 
-  			if(handle.isSubscribed){
-				console.log("resubscribing...");
-				handle.subscribe();
-			}
-  		};
+    ws.onopen = function() {
+      console.log("connected");
 
-  		ws.onerror = function(){
-  			console.log("error");
- 			this.reconnect();
-  		};
+      if (handle.isSubscribed) {
+        console.log("resubscribing...");
+        handle.subscribe();
+      }
+    };
 
-		ws.onclose  = function() {
-		  	console.log("disconnected");
-		};
+    ws.onerror = function() {
+      console.log("error");
+      this.reconnect();
+    };
 
-		ws.onmessage = function(event) {
-		
-			let json = JSON.parse(event.data);
-		
-			let divId = document.getElementById("data");		
-			divId.innerHTML = "";
-			
-			for(let i=0; i< json.length; i++){
-				divId.innerHTML += "<br> Topic:" + json[i].topic + "  Value: " + json[i].value + "</br>";
-			}
-		};
+    ws.onclose = function() {
+      console.log("disconnected");
+    };
 
-	},
-	
-	disconnect : function() {
+    ws.onmessage = function(event) {
+      let json = JSON.parse(event.data);
 
-		if(ws.readyState===WebSocket.OPEN){
-			console.log("disconnecting...");
-			ws.close();		
-		}
-	},
+      let divId = document.getElementById("data");
+      divId.innerHTML = "";
 
-	reconnect : function() {
+      for (let i = 0; i < json.length; i++) {
+        divId.innerHTML +=
+          "<br> Topic:" + json[i].topic + "  Value: " + json[i].value + "</br>";
+      }
+    };
+  },
 
-		if(ws.readyState===WebSocket.CLOSED){
-			console.log("reconnecting...");
+  disconnect: function() {
+    if (ws.readyState === WebSocket.OPEN) {
+      console.log("disconnecting...");
+      ws.close();
+    }
+  },
 
-			let handle = this;
-			setTimeout(function(){handle.connect();}, 300);
-		}
-	},
+  reconnect: function() {
+    if (ws.readyState === WebSocket.CLOSED) {
+      console.log("reconnecting...");
 
-	publish : function() {
+      let handle = this;
+      setTimeout(function() {
+        handle.connect();
+      }, 300);
+    }
+  },
 
-		let url = '/';
-  		let data = {"topic": document.getElementById("topic").value,
-                    "value": document.getElementById("value").value};
+  publish: function() {
+    let url = "/";
+    let data = {
+      topic: document.getElementById("topic").value,
+      value: document.getElementById("value").value
+    };
 
-		fetch(url, {
-  			method: 'POST', // or 'PUT'
-  			body: JSON.stringify(data), // data can be `string` or {object}!
-  			headers:{
-    				'Content-Type': 'application/json'
-  			}
-		}).then(res => res.json())
-		.then(response => console.log('Success:', JSON.stringify(response)))
-		.catch(error => console.error('Error:', error));	
-		
-	},
-	
-	subscribe : function() {
-		ws.send("subscribe");
-		this.isSubscribed = true;
-	},
+    fetch(url, {
+      method: "POST", // or 'PUT'
+      body: JSON.stringify(data), // data can be `string` or {object}!
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+      .then(res => res.json())
+      .then(response => console.log("Success:", JSON.stringify(response)))
+      .catch(error => console.error("Error:", error));
+  },
 
-	unsubscribe : function() {
-		ws.send("unsubscribe");
-		this.isSubscribed = false;
+  subscribe: function() {
+    ws.send("subscribe");
+    this.isSubscribed = true;
+  },
 
+  unsubscribe: function() {
+    ws.send("unsubscribe");
+    this.isSubscribed = false;
 
-		let divId = document.getElementById("data");		
-		divId.innerHTML = "";
-		
-	}
-
- };
+    let divId = document.getElementById("data");
+    divId.innerHTML = "";
+  }
+};
