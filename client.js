@@ -1,16 +1,19 @@
-let client = {
-  ws: null,
+class clientLib {
 
-  isSubscribed: false,
+  constructor(callback = null){
+  	this.ws = null;
+  	this.isSubscribed = false;
+  	this.callback = callback;
+  }
 
-  connect: function() {
+  connect() {
     console.log("connecting...");
 
-    ws = new WebSocket("wss://localhost:3000");
+    this.ws = new WebSocket("wss://localhost:3000");
 
     let handle = this;
 
-    ws.onopen = function() {
+    this.ws.onopen = function() {
       console.log("connected");
 
       if (handle.isSubscribed) {
@@ -19,37 +22,32 @@ let client = {
       }
     };
 
-    ws.onerror = function() {
+    this.ws.onerror = function() {
       console.log("error");
       this.reconnect();
     };
 
-    ws.onclose = function() {
+    this.ws.onclose = function() {
       console.log("disconnected");
     };
 
-    ws.onmessage = function(event) {
+    this.ws.onmessage = function(event) {
       let json = JSON.parse(event.data);
 
-      let divId = document.getElementById("data");
-      divId.innerHTML = "";
-
-      for (let i = 0; i < json.length; i++) {
-        divId.innerHTML +=
-          "<br> Topic:" + json[i].topic + "  Value: " + json[i].value + "</br>";
-      }
+      if(handle.callback)
+      	handle.callback(json);
     };
-  },
+  }
 
-  disconnect: function() {
-    if (ws.readyState === WebSocket.OPEN) {
+  disconnect() {
+    if (this.ws.readyState === WebSocket.OPEN) {
       console.log("disconnecting...");
-      ws.close();
+      this.ws.close();
     }
-  },
+  }
 
-  reconnect: function() {
-    if (ws.readyState === WebSocket.CLOSED) {
+  reconnect() {
+    if (this.ws.readyState === WebSocket.CLOSED) {
       console.log("reconnecting...");
 
       let handle = this;
@@ -57,9 +55,9 @@ let client = {
         handle.connect();
       }, 300);
     }
-  },
+  }
 
-  publish: function() {
+  publish() {
     let url = "/";
     let data = {
       topic: document.getElementById("topic").value,
@@ -76,15 +74,15 @@ let client = {
       .then(res => res.json())
       .then(response => console.log("Success:", JSON.stringify(response)))
       .catch(error => console.error("Error:", error));
-  },
+  }
 
-  subscribe: function() {
-    ws.send("subscribe");
+  subscribe() {
+    this.ws.send("subscribe");
     this.isSubscribed = true;
-  },
+  }
 
-  unsubscribe: function() {
-    ws.send("unsubscribe");
+  unsubscribe() {
+    this.ws.send("unsubscribe");
     this.isSubscribed = false;
 
     let divId = document.getElementById("data");

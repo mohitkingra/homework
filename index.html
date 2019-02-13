@@ -1,7 +1,20 @@
 <!DOCTYPE html>
 <html>
  <head>
- 	<script defer src="./client.js" charset="utf-8"></script>   
+ 	<script src="./client.js" charset="utf-8"></script> 
+    <script type="text/javascript">
+        const client = new clientLib(callback);
+
+        function callback(json){
+            let divId = document.getElementById("data");
+            divId.innerHTML = "";
+
+            for (let i = 0; i < json.length; i++) {
+            divId.innerHTML +=
+                "<br> Topic:" + json[i].topic + "  Value: " + json[i].value + "</br>";
+            }
+        }
+    </script>
  </head>
  <body>
 	<button onclick="client.connect()">Connect</button>
